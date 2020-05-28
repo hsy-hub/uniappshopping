@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="shopping.uniappshopping.mapper.CustomerMapper">
+    <select id="login" parameterType="customer" resultType="Customer">
+     select * from customer where phone=#{phone} and password=#{password}
+    </select>
+
+    <resultMap id="CustomerAddressMap" type="CustomerAddress">
+        <id property="id" column="id"></id>
+        <collection property="addressList" ofType="Address">
+            <id property="ac_id" column="ac_id"></id>
+            <result property="address" column="address"></result>
+            <result property="area" column="area"></result>
+            <result property="mobile" column="mobile"></result>
+            <result property="default_" column="default_"></result>
+            <result property="receiver" column="receiver"></result>
+            <result property="cid" column="cid"></result>
+        </collection>
+    </resultMap>
+    <select id="getCustomerAddressDefault" resultMap="CustomerAddressMap">
+      SELECT c.id,ac.ac_id,ac.address,ac.area,ac.cid,ac.default_,ac.mobile,ac.receiver FROM customer c
+      LEFT JOIN address_customer ac ON c.id=ac.cid WHERE c.id=#{id} and ac.default_=true
+    </select>
+
+    <select id="getCustomerAddressAll" resultMap="CustomerAddressMap">
+      SELECT c.id,ac.ac_id,ac.address,ac.area,ac.cid,ac.default_,ac.mobile,ac.receiver FROM customer c
+      LEFT JOIN address_customer ac ON c.id=ac.cid WHERE c.id=#{id}
+    </select>
+
+    <update id="updateAddress" parameterType="Address">
+        update address_customer set address=#{address},receiver=#{receiver},area=#{area},mobile=#{mobile} where ac_id=#{ac_id}
+    </update>
+
+    <update id="updateAddressDefaultFalse" parameterType="integer">
+        update address_customer set default_=0 where cid=#{cid}
+    </update>
+
+    <update id="updateAddressDefaultTrue" parameterType="integer">
+        update address_customer set default_=1 where ac_id=#{ac_id}
+    </update>
+
+    <insert id="addAddress" parameterType="address">
+        insert into address_customer values (#{ac_id},#{receiver},#{mobile},#{address},#{area},#{default_},#{cid})
+    </insert>
+
+
+</mapper>

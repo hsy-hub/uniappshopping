@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="shopping.uniappshopping.mapper.OrderMapper">
+    <insert id="createOrder" parameterType="Order" useGeneratedKeys="true" keyProperty="id">
+        insert into orders values (#{id},#{createTime},#{p_id},#{s1_id},#{s2_id},#{state},#{customer_id},#{ac_id})
+    </insert>
+
+    <!--<select id="getOrderByWhere" parameterType="hashMAp">-->
+        <!--SELECT o.* FROM orders o WHERE customer_id=#{customer_id}-->
+        <!--<if test="state != null">-->
+            <!--and o.state=#{state}-->
+        <!--</if>-->
+    <!--</select>-->
+
+    <resultMap id="OrderMap" type="orderDetail">
+        <id property="id" column="id"></id>
+        <result property="createTime" column="createTime"></result>
+        <result property="state" column="state"></result>
+        <association property="productDetail" javaType="ProductDetail">
+            <id property="id" column="id"></id>
+            <result property="productName" column="productName"></result>
+            <result property="description" column="description"></result>
+            <result property="image" column="image"></result>
+            <result property="productPrice" column="productPrice"></result>
+        </association>
+        <association property="state_" javaType="State">
+            <result property="stateName" column="stateName"></result>
+        </association>
+        <association property="address" javaType="Address">
+            <id property="ac_id" column="ac_id"></id>
+        </association>
+        <collection property="styleList" ofType="ProductStyle">
+            <id property="id" column="id"></id>
+            <result property="styleName" column="styleName"></result>
+        </collection>
+    </resultMap>
+
+    <select id="getOrderByCustomerId" parameterType="hashMap" resultMap="OrderMap">
+        SELECT o.id,o.createTime,o.state,
+        os.stateName,
+        p.description,p.image,p.productName,p.productPrice,
+        s.styleName,
+        ac.ac_id
+        FROM orders o
+        LEFT JOIN order_state os ON o.state=os.id
+        LEFT JOIN productdetail p ON p.id=o.p_id
+        LEFT JOIN style s ON o.s1_id=s.o_id OR o.s2_id=s.o_id
+        LEFT JOIN address_customer ac ON o.ac_id=ac.ac_id
+        WHERE o.customer_id=#{customer_id}
+        <if test="state != null and state != 0">
+           and o.state=#{state}
+        </if>
+    </select>
+
+    <delete id="cancelOrder" parameterType="integer">
+        delete from orders where id=#{id}
+    </delete>
+
+    <update id="payOrder" parameterType="integer">
+        update orders set state=2 where id=#{id}
+    </update>
+
+    <!--批量插入-->
+    <insert id="" parameterType="list">
+        insert into orders values
+        <foreach collection="list" open="(" separator="," close=")">
+
+        </foreach>
+    </insert>
+</mapper>

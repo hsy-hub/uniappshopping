@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="shopping.uniappshopping.mapper.ProductMapper">
+    <select id="getProductList" parameterType="Map" resultType="ProductDetail">
+        select * from productdetail
+        <where>
+            <if test="productName != null and productName !=''">
+                and productName like '%${productName}%'
+            </if>
+        </where>
+        limit #{pageStart},#{pageSize}
+    </select>
+    <select id="selectProCount" resultType="integer">
+        select count(*) from productdetail
+    </select>
+    <resultMap id="productDiscussMap" type="productDiscuss">
+        <id property="id" column="p_id"></id>
+        <result property="description" column="p_description"></result>
+        <result property="image" column="p_image"></result>
+        <result property="image2" column="p_image2"></result>
+        <result property="productName" column="p_productName"></result>
+        <result property="productPrice" column="p_productPrice"></result>
+        <result property="sales" column="p_sales"></result>
+        <result property="image3" column="p_image3"></result>
+        <result property="repositry" column="p_repositry"></result>
+        <collection property="discussList" ofType="Discuss">
+            <id property="id" column="d_id"></id>
+            <result property="nickName" column="d_nickName"></result>
+            <result property="time" column="d_time"></result>
+            <result property="content" column="d_content"></result>
+            <result property="praise" column="d_praise"></result>
+            <association property="productStyle" javaType="ProductStyle">
+                <id property="id" column="s_id"></id>
+                <result property="styleName" column="s_styleName"></result>
+                <result property="pid" column="s_pid"></result>
+            </association>
+        </collection>
+    </resultMap>
+    <select id="getProductById" parameterType="integer" resultMap="productDiscussMap">
+        select p.id p_id,p.description p_description,p.image p_image,p.image2 p_image2, p.productName p_productName,
+         p.productPrice p_productPrice, p.sales p_sales, p.image3 p_image3, p.repositry p_repositry,
+        d.id d_id, d.nickName d_nickName, d.time d_time, d.content d_content, d.praise d_praise,
+        s.id s_id,s.styleName s_styleName,s.pid s_pid
+        from productdetail p left join discuss d on p.id=d.pid
+        left join style s on d.sid=s.pid where p.id=#{id}
+    </select>
+
+    <resultMap id="SaleProduct" type="SaleProduct">
+        <id property="id" column="p_id"></id>
+        <result property="image" column="image"></result>
+        <result property="productName" column="productName"></result>
+        <collection property="categrayList" ofType="Categray">
+            <id property="id" column="c_id"></id>
+            <result property="type" column="type"></result>
+        </collection>
+        <collection property="styleList" ofType="ProductStyle">
+            <id property="id" column="ca_id"></id>
+            <result property="ca_id" column="ca_id"></result>
+            <result property="pid" column="pid"></result>
+            <result property="styleName" column="styleName"></result>
+        </collection>
+    </resultMap>
+    <select id="getSaleProduct" parameterType="integer" resultMap="SaleProduct">
+        SELECT
+        p.id p_id,
+        p.image,
+        p.productName,
+        c.id c_id,
+        c.type,
+        s.id s_id,
+        s.ca_id,
+        s.pid,
+        s.styleName
+        FROM productdetail p
+        LEFT JOIN categray c ON p.id=c.p_id
+        LEFT JOIN style s ON c.id =s.ca_id WHERE p.id=#{id}
+    </select>
+</mapper>

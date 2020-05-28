@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="shopping.uniappshopping.mapper.CartMapper">
+
+    <resultMap id="CartMap" type="cartDetail">
+        <id property="id" column="id"></id>
+        <result property="number" column="number"></result>
+        <association property="productDetail" javaType="ProductDetail">
+            <id property="id" column="id"></id>
+            <result property="productName" column="productName"></result>
+            <result property="productPrice" column="productPrice"></result>
+        </association>
+        <collection property="productStyle" javaType="ProductStyle">
+            <id property="id" column="id"></id>
+            <result property="styleName" column="styleName"></result>
+        </collection>
+    </resultMap>
+
+    <select id="getCartDetailByCustomerId" resultMap="CartMap">
+        select p.productName,p.productPrice,s.styleName from carttable ct
+        left join productdetail p on ct.p_id=p.id
+        left join style s on ct.s1_id=s.o_id or ct.s2_id=s.o_id
+    </select>
+
+    <insert id="addCart" parameterType="cart">
+        insert into carttable values (#{id},#{ac_id},#{c_id},#{p_id},#{s1_id},#{s2_id},#{number})
+    </insert>
+
+
+    <!--<delete id="deleteCartByIds" parameterType="list">-->
+        <!--delete from carttable-->
+        <!--<where>-->
+            <!--ac_id in-->
+            <!--<foreach collection="list" item="item" open="(" separator="," close=")">-->
+                <!--#{item}-->
+            <!--</foreach>-->
+        <!--</where>-->
+    <!--</delete>-->
+</mapper>
